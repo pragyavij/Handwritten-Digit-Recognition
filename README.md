@@ -1,4 +1,4 @@
-# Handwritten Digit Recognition using CNN
+# AI Handwritten Digit Recognition using CNN
 
 A desktop application built with Python and Tkinter that recognizes handwritten digits using a Convolutional Neural Network (CNN) trained on the MNIST dataset.
 
@@ -74,10 +74,3 @@ Through this project, I learned:
 - Model training and inference using TensorFlow
 - Project organization using Git and GitHub
 
-## Future Improvements
-
-- Better digit centering
-- Improved preprocessing pipeline
-- Custom dataset training
-- Confidence visualization
-- Export prediction history
