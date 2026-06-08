@@ -33,7 +33,7 @@ A desktop application built with Python and Tkinter that recognizes handwritten 
 Clone the repository:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/Handwritten-Digit-Recognition.git
+git clone https://github.com/pragyavij/Handwritten-Digit-Recognition.git
 ```
 
 Install dependencies:
@@ -45,7 +45,7 @@ pip install -r requirements.txt
 Run the application:
 
 ```bash
-python app.py
+python digit_recognition.py
 ```
 
 ## Model Information
