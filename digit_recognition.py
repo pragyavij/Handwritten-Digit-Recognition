@@ -1,0 +1,149 @@
+import tkinter as tk
+import cv2
+import numpy as np
+from tensorflow.keras.models import load_model
+from PIL import Image, ImageDraw, ImageTk
+
+model = load_model("models/mnist_cnn.h5")
+
+root=tk.Tk()
+root.title("Digit Recognition")
+
+canvas=tk.Canvas(root, width=300, height=300, bg="black")
+canvas.pack()
+
+image=Image.new("L", (300, 300), "black")
+draw_image = ImageDraw.Draw(image)
+history=[]
+
+def draw(event):
+  x=event.x
+  y=event.y
+
+  canvas.create_oval(
+    x-8, y-8,
+    x+8, y+8,
+    fill="white",
+    outline="white"
+  )
+
+  draw_image.ellipse(
+     [x-8, y-8, x+8, y+8],
+     fill="white"
+  )
+
+def clear_canvas():
+    canvas.delete("all")
+
+    global image, draw_image
+
+    image=Image.new("L", (300, 300), "black")
+    draw_image = ImageDraw.Draw(image)
+
+    result_label.config(
+       text="Draw a digit"
+    )
+
+def save_image():
+   image.save("digit.png")
+   print("Image saved")
+
+def predict_digit():
+  image.save("digit.png")
+
+  img = cv2.imread("digit.png")
+
+  gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+  _, thresh = cv2.threshold(gray, 50, 255, cv2.THRESH_BINARY)
+
+  coords = cv2.findNonZero(thresh)
+
+  x, y, w, h = cv2.boundingRect(coords)
+
+  digit_roi = gray[y:y+h, x:x+w]
+
+  gray = cv2.resize(digit_roi, (28, 28))
+
+  preview_img = (gray.copy()).astype(np.uint8)
+
+  gray = gray / 255.0
+
+  gray = gray.reshape(1, 28, 28, 1)
+
+  display_img = Image.fromarray(preview_img)
+
+  display_img = display_img.resize((140,140))
+
+  photo = ImageTk.PhotoImage(display_img)
+
+  preview_label.config(image=photo)
+
+  preview_label.image = photo
+
+  prediction = model.predict(gray, verbose=0)
+
+  probs = prediction[0]
+
+  top3 = np.argsort(probs)[-3:][::-1]
+
+  text = "Top Predictions\n\n"
+
+  for idx in top3:
+      text += f"{idx} → {probs[idx]*100:.2f}%\n"
+
+  result_label.config(text=text)
+
+  history.append(
+     f"{top3[0]} ({probs[top3[0]]*100:.1f}%)"
+  )
+  history_text="Prediction Histroy\n\n"
+
+  for item in history[-10:][::-1]:
+     history_text += item + "\n"
+
+  history_label.config(
+     text=history_text
+  )
+
+canvas.bind("<B1-Motion>",draw)
+
+clear_btn = tk.Button(
+  root,
+  text="Clear",
+  command=clear_canvas
+)
+clear_btn.pack()
+
+save_btn = tk.Button(
+  root,
+  text="Save",
+  command=save_image
+)
+save_btn.pack()
+
+predict_btn = tk.Button(
+    root,
+    text="Predict",
+    command=predict_digit
+)
+predict_btn.pack()
+
+result_label = tk.Label(
+    root,
+    text="Draw a digit",
+    font=("Arial", 16)
+)
+result_label.pack()
+preview_label = tk.Label(root)
+preview_label.pack()
+history_label=tk.Label(
+   root,
+   test="Prediction History",
+   justify="left",
+   font=("Arial",12)
+)
+history_label.pack()
+
+
+root.mainloop() 
